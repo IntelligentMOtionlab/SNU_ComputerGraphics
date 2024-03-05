@@ -18,4 +18,5 @@ And then clone this repository:
     git clone https://github.com/IntelligentMOtionlab/2024ComputerGraphics.git
 
 then you can implement the code easily by:
+
     python3 main.py
