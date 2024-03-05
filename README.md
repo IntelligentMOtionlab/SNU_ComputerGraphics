@@ -1,6 +1,7 @@
 
 ## Requirements
 
+This is a baseline code for 2024-1 Computer Graphics.
 This code uses [Pyglet](https://github.com/pyglet/pyglet) which is a cross-platform windowing library under Python 3.8+. 
 Supported platforms are:
 
