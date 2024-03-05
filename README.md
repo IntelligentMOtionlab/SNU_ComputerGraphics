@@ -1,7 +1,7 @@
 
 ## Requirements
 
-This is a baseline code for SNU Computer Graphics (4190.410).
+This is a baseline code for **SNU Computer Graphics (4190.410)**.
 This code uses [Pyglet](https://github.com/pyglet/pyglet) which is a cross-platform windowing library under Python 3.8+. 
 Supported platforms are:
 
