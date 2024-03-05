@@ -16,7 +16,7 @@ Pyglet is installable from PyPI:
 
 And then clone this repository:
 
-    git clone https://github.com/IntelligentMOtionlab/2024ComputerGraphics.git
+    git clone https://github.com/IntelligentMOtionlab/SNU_ComputerGraphics.git
 
 You can implement the code easily by:
 
