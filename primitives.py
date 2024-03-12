@@ -11,8 +11,8 @@ class CustomGroup(pyglet.graphics.Group):
     To draw multiple 3D shapes in Pyglet, you should make a group for an object.
     '''
     def __init__(self, id, shader_program:shader.ShaderProgram,
-                 translate_mat: Mat4, rotation_vec:Vec3):
-        super().__init__()
+                 translate_mat: Mat4, rotation_vec:Vec3, order=0):
+        super().__init__(order)
         self.id = id
         self.program = shader_program
         self.translate_mat = translate_mat
@@ -21,14 +21,13 @@ class CustomGroup(pyglet.graphics.Group):
         self.program.use()
 
     def set_state(self):
-        # If you uncomment the below code, animation will be played.
-        # self.angle +=0.016
+        self.program.use()
         rotate_mat_x = Mat4.from_rotation(angle = self.angle, vector = self.rotation_vec)
         model = self.translate_mat @ rotate_mat_x
         self.program['model'] = model
 
     def unset_state(self):
-        pass
+        self.program.stop()
 
     def __eq__(self, other):
         return (self.__class__ is other.__class__ and
@@ -55,7 +54,7 @@ class Cube:
         self.vertices = [scale[idx%3] * x for idx, x in enumerate(self.vertices)]
     
         self.indices = [0, 1, 2, 2, 3, 0,
-                    4, 5, 6, 6, 7, 4,
+                    4, 7, 6, 6, 5, 4,
                     4, 5, 1, 1, 0, 4,
                     6, 7, 3, 3, 2, 6,
                     5, 6, 2, 2, 1, 5,

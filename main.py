@@ -10,16 +10,16 @@ if __name__ == '__main__':
     width = 1280
     height = 720
 
-    # render window.
-    renderer = RenderWindow(width,height, "Hello Pyglet", resizable = True)   
-    # renderer.set_location(200,1200)
+    # Render window.
+    renderer = RenderWindow(width, height, "Hello Pyglet", resizable = True)   
+    renderer.set_location(200, 200)
 
     # Keyboard/Mouse control. Not implemented yet.
     controller = Control(renderer)
 
-    translate_mat1 = Mat4.from_translation(vector=Vec3(x=-2, y=0,z=0))
-    translate_mat2 = Mat4.from_translation(vector=Vec3(x=0, y=0,z=0))
-    translate_mat3 = Mat4.from_translation(vector=Vec3(x=2, y=0,z=0))
+    translate_mat1 = Mat4.from_translation(vector=Vec3(x=-2, y=0, z=0))
+    translate_mat2 = Mat4.from_translation(vector=Vec3(x=0, y=0, z=0))
+    translate_mat3 = Mat4.from_translation(vector=Vec3(x=2, y=0, z=0))
 
     scale_vec = Vec3(x=1, y=1, z=1)
 
