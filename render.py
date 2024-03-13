@@ -68,8 +68,10 @@ class RenderWindow(pyglet.window.Window):
             shapes created later rotate faster while positions are not changed.
             '''
             if self.animate:
-                shape.rotate_axis = Vec3(0,0,1)
-                shape.angle += (i+1)*dt
+                rotate_angle = dt
+                rotate_axis = Vec3(0,0,1)
+                rotate_mat_x = Mat4.from_rotation(angle = rotate_angle, vector = rotate_axis)
+                shape.transform_mat @= rotate_mat_x
             '''
             Update view and projection matrix. There exist only one view and projection matrix 
             in the program, so we just assign the same matrices for all the shapes
@@ -104,4 +106,5 @@ class RenderWindow(pyglet.window.Window):
     def run(self):
         pyglet.clock.schedule_interval(self.update, 1/60)
         pyglet.app.run()
+
     

@@ -15,14 +15,11 @@ class CustomGroup(pyglet.graphics.Group):
         super().__init__(order)
         self.program = shader_program
         self.transform_mat = transform_mat
-        self.angle = 0
-        self.rotate_axis = Vec3(0,1,0)
         self.program.use()
 
     def set_state(self):
         self.program.use()
-        rotate_mat_x = Mat4.from_rotation(angle = self.angle, vector = self.rotate_axis)
-        model = self.transform_mat @ rotate_mat_x
+        model = self.transform_mat
         self.program['model'] = model
 
     def unset_state(self):
