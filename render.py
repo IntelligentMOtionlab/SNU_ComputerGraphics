@@ -68,6 +68,7 @@ class RenderWindow(pyglet.window.Window):
             shapes created later rotate faster while positions are not changed.
             '''
             if self.animate:
+                shape.rotate_axis = Vec3(0,0,1)
                 shape.angle += (i+1)*dt
             '''
             Update view and projection matrix. There exist only one view and projection matrix 
@@ -81,7 +82,7 @@ class RenderWindow(pyglet.window.Window):
             aspect = width/height, z_near=self.z_near, z_far=self.z_far, fov = self.fov)
         return pyglet.event.EVENT_HANDLED
 
-    def add_shape(self, pos, vertice, indice, color):
+    def add_shape(self, transform, vertice, indice, color):
         '''
         Create shader program for each shape
         '''
@@ -91,7 +92,7 @@ class RenderWindow(pyglet.window.Window):
         '''
         Assign a group for each shape
         '''
-        shape = CustomGroup(len(self.shapes), shader_program, pos, Vec3(0,0,1))
+        shape = CustomGroup(shader_program, transform, len(self.shapes))
         shader_program.vertex_list_indexed(len(vertice)//3, GL_TRIANGLES,
                         batch = self.batch,
                         group = shape,
