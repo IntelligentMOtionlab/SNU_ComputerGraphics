@@ -10,6 +10,8 @@ from pyglet.gl import *
 import shader
 from primitives import CustomGroup
 
+
+
 class RenderWindow(pyglet.window.Window):
     '''
     inherits pyglet.window.Window which is the default render window of Pyglet
@@ -17,61 +19,92 @@ class RenderWindow(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch = pyglet.graphics.Batch()
-        self.lookat = Vec3(0,2,3)
-        self.num_shape =0
+        '''
+        View (camera) parameters
+        '''
+        self.cam_eye = Vec3(0,2,4)
+        self.cam_target = Vec3(0,0,0)
+        self.cam_vup = Vec3(0,1,0)
+        self.view_mat = None
+        '''
+        Projection parameters
+        '''
         self.z_near = 0.1
         self.z_far = 100
         self.fov = 60
-        self.view = Mat4.look_at(self.lookat, target=Vec3(0,0,0), up=Vec3(0,1,0))
         self.proj_mat = None
 
+        self.shapes = []
         self.setup()
+
+        self.animate = False
 
     def setup(self) -> None:
         self.set_minimum_size(width = 400, height = 300)
-        self.set_mouse_visible(False)
+        self.set_mouse_visible(True)
         glEnable(GL_DEPTH_TEST)
+        glEnable(GL_CULL_FACE)
 
-        # 1. create the view and (orthographic) projection matrices
-        # LookAt matrix
-        self.view = Mat4.look_at(self.lookat, target=Vec3(0,0,0), up=Vec3(0,1,0))
+        # 1. Create a view matrix
+        self.view_mat = Mat4.look_at(
+            self.cam_eye, target=self.cam_target, up=self.cam_vup)
         
-        # #orthographic projectic matrices
-        # proj_mat = Mat4.orthogonal_projection(left=0, right=width, bottom=0, top=height, z_near=0.1, z_far=1000)
-        # 1-1 for the persepective projection
-        self.proj_mat = Mat4.perspective_projection(aspect = self.width/self.height, z_near=self.z_near, z_far=self.z_far, fov = self.fov)
-        # 2. combine the view and projection matrices into one matrix
-        vp = self.proj_mat @ self.view
-        # 3. upload the combined view-projection matrix to the vertex shader vp uniform
-        shader.program['vp'] = vp
+        # 2. Create a projection matrix 
+        self.proj_mat = Mat4.perspective_projection(
+            aspect = self.width/self.height, 
+            z_near=self.z_near, 
+            z_far=self.z_far, 
+            fov = self.fov)
 
     def on_draw(self) -> None:
         self.clear()
         self.batch.draw()
 
     def update(self,dt) -> None:
-        translate_mat = Mat4.from_translation(vector=Vec3(x=0,y=0,z=0))
-        rotate_mat = Mat4.from_rotation(angle=0, vector=Vec3(0,1,0))
-        model_mat = translate_mat @ rotate_mat
-        shader.program['model'] = model_mat
+        view_proj = self.proj_mat @ self.view_mat
+        for i, shape in enumerate(self.shapes):
+            '''
+            Update position/orientation in the scene. In the current setting, 
+            shapes created later rotate faster while positions are not changed.
+            '''
+            if self.animate:
+                rotate_angle = dt
+                rotate_axis = Vec3(0,0,1)
+                rotate_mat = Mat4.from_rotation(angle = rotate_angle, vector = rotate_axis)
+                
+                shape.transform_mat @= rotate_mat
+
+                # # Example) You can control the vertices of shape.
+                # shape.indexed_vertices_list.vertices[0] += 0.5 * dt
+
+            '''
+            Update view and projection matrix. There exist only one view and projection matrix 
+            in the program, so we just assign the same matrices for all the shapes
+            '''
+            shape.shader_program['view_proj'] = view_proj
 
     def on_resize(self, width, height):
-       glViewport(0,0,width, height)
-       self.projection = Mat4.perspective_projection(self.aspect_ratio, z_near=0.1, z_far=255, fov = 60) #1280/720 = 1.7777
-       return pyglet.event.EVENT_HANDLED
+        glViewport(0, 0, *self.get_framebuffer_size())
+        self.proj_mat = Mat4.perspective_projection(
+            aspect = width/height, z_near=self.z_near, z_far=self.z_far, fov = self.fov)
+        return pyglet.event.EVENT_HANDLED
 
-    def add_shape(self, pos, vertice,indice, color):    
-        custom_group = CustomGroup(self.num_shape,shader.program, pos, Vec3(0,0,1))
-        shader.program.vertex_list_indexed(len(vertice)//3, GL_TRIANGLES,
+    def add_shape(self, transform, vertice, indice, color):
+        
+        '''
+        Assign a group for each shape
+        '''
+        shape = CustomGroup(transform, len(self.shapes))
+        shape.indexed_vertices_list = shape.shader_program.vertex_list_indexed(len(vertice)//3, GL_TRIANGLES,
                         batch = self.batch,
-                        group = custom_group,
+                        group = shape,
                         indices = indice,
                         vertices = ('f', vertice),
-                        colors = ('Bn', color)) 
-        
-        self.num_shape+=1
+                        colors = ('Bn', color))
+        self.shapes.append(shape)
          
     def run(self):
         pyglet.clock.schedule_interval(self.update, 1/60)
         pyglet.app.run()
+
     

@@ -17,6 +17,7 @@ class Control:
         window.on_mouse_press = self.on_mouse_press
         window.on_mouse_release = self.on_mouse_release
         window.on_mouse_scroll = self.on_mouse_scroll
+        self.window = window
         self.setup()
 
     def setup(self):
@@ -26,11 +27,14 @@ class Control:
         pass
 
     def on_key_press(self, symbol, modifier):
-        if symbol == pyglet.window.key.ESCAPE:
-            pyglet.app.exit()
         # TODO:
+        pass
     
     def on_key_release(self, symbol, modifier):
+        if symbol == pyglet.window.key.ESCAPE:
+            pyglet.app.exit()
+        elif symbol == pyglet.window.key.SPACE:
+            self.window.animate = not self.window.animate
         # TODO:
         pass
 
