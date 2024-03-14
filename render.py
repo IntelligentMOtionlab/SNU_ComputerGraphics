@@ -68,12 +68,20 @@ class RenderWindow(pyglet.window.Window):
             shapes created later rotate faster while positions are not changed.
             '''
             if self.animate:
-                shape.angle += (i+1)*dt
+                rotate_angle = dt
+                rotate_axis = Vec3(0,0,1)
+                rotate_mat = Mat4.from_rotation(angle = rotate_angle, vector = rotate_axis)
+                
+                shape.transform_mat @= rotate_mat
+
+                # # Example) You can control the vertices of shape.
+                # shape.indexed_vertices_list.vertices[0] += 0.5 * dt
+
             '''
             Update view and projection matrix. There exist only one view and projection matrix 
             in the program, so we just assign the same matrices for all the shapes
             '''
-            shape.program['view_proj'] = view_proj
+            shape.shader_program['view_proj'] = view_proj
 
     def on_resize(self, width, height):
         glViewport(0, 0, *self.get_framebuffer_size())
@@ -81,26 +89,22 @@ class RenderWindow(pyglet.window.Window):
             aspect = width/height, z_near=self.z_near, z_far=self.z_far, fov = self.fov)
         return pyglet.event.EVENT_HANDLED
 
-    def add_shape(self, pos, vertice, indice, color):
-        '''
-        Create shader program for each shape
-        '''
-        shader_program = shader.create_program(
-            shader.vertex_source_default, shader.fragment_source_default
-        )
+    def add_shape(self, transform, vertice, indice, color):
+        
         '''
         Assign a group for each shape
         '''
-        shape = CustomGroup(len(self.shapes), shader_program, pos, Vec3(0,0,1))
-        shader_program.vertex_list_indexed(len(vertice)//3, GL_TRIANGLES,
+        shape = CustomGroup(transform, len(self.shapes))
+        shape.indexed_vertices_list = shape.shader_program.vertex_list_indexed(len(vertice)//3, GL_TRIANGLES,
                         batch = self.batch,
                         group = shape,
                         indices = indice,
                         vertices = ('f', vertice),
-                        colors = ('Bn', color)) 
+                        colors = ('Bn', color))
         self.shapes.append(shape)
          
     def run(self):
         pyglet.clock.schedule_interval(self.update, 1/60)
         pyglet.app.run()
+
     

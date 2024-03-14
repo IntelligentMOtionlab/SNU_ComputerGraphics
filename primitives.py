@@ -1,6 +1,6 @@
 import pyglet
 from pyglet import window, app, shapes
-from pyglet.math import Mat4, Vec3
+from pyglet.math import Mat4, Vec3, Vec4
 import math
 from pyglet.gl import *
 
@@ -10,32 +10,35 @@ class CustomGroup(pyglet.graphics.Group):
     '''
     To draw multiple 3D shapes in Pyglet, you should make a group for an object.
     '''
-    def __init__(self, id, shader_program:shader.ShaderProgram,
-                 translate_mat: Mat4, rotation_vec:Vec3, order=0):
+    def __init__(self, transform_mat: Mat4, order):
         super().__init__(order)
-        self.id = id
-        self.program = shader_program
-        self.translate_mat = translate_mat
-        self.rotation_vec = rotation_vec
-        self.angle = 0
-        self.program.use()
+
+        '''
+        Create shader program for each shape
+        '''
+        self.shader_program = shader.create_program(
+            shader.vertex_source_default, shader.fragment_source_default
+        )
+
+        self.transform_mat = transform_mat
+        self.indexed_vertices_list = None
+        self.shader_program.use()
 
     def set_state(self):
-        self.program.use()
-        rotate_mat_x = Mat4.from_rotation(angle = self.angle, vector = self.rotation_vec)
-        model = self.translate_mat @ rotate_mat_x
-        self.program['model'] = model
+        self.shader_program.use()
+        model = self.transform_mat
+        self.shader_program['model'] = model
 
     def unset_state(self):
-        self.program.stop()
+        self.shader_program.stop()
 
     def __eq__(self, other):
         return (self.__class__ is other.__class__ and
-                self.id == other.id and
+                self.order == other.order and
                 self.parent == other.parent)
     
     def __hash__(self):
-        return hash((self.id)) 
+        return hash((self.order)) 
     
 
 class Cube:
