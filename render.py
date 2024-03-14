@@ -35,7 +35,6 @@ class RenderWindow(pyglet.window.Window):
         self.proj_mat = None
 
         self.shapes = []
-        self.shader_program = []
         self.setup()
 
         self.animate = False
@@ -71,8 +70,13 @@ class RenderWindow(pyglet.window.Window):
             if self.animate:
                 rotate_angle = dt
                 rotate_axis = Vec3(0,0,1)
-                rotate_mat_x = Mat4.from_rotation(angle = rotate_angle, vector = rotate_axis)                
-                shape.transform_mat @= rotate_mat_x
+                rotate_mat = Mat4.from_rotation(angle = rotate_angle, vector = rotate_axis)
+                
+                shape.transform_mat @= rotate_mat
+
+                # # Example) You can control the vertices of shape.
+                # shape.indexed_vertices_list.vertices[0] += 0.5 * dt
+
             '''
             Update view and projection matrix. There exist only one view and projection matrix 
             in the program, so we just assign the same matrices for all the shapes
